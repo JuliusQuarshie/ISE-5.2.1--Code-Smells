@@ -20,20 +20,29 @@ class Nose:
         Humans must not have an active immune response to smell.
         Cyborgs must have both capacity and no immune response to smell.
         """
+        self._check_can_smell()
+
         if self.is_robot:
-            if self.current_air_tank_level < self.air_tank_capacity_liters:
-                self.smelled_smells.add(odor)
-                self.current_air_tank_level += 1
-            else:
-                raise RuntimeError("Robot nose cannot smell when air tank is full.")
+            self._smell_as_robot(odor)
         else:
-            if not self.immune_response:
-                if odor in self.allergies:
-                    self.immune_response = True
-                else:
-                    self.smelled_smells.add(odor)
-            else:
-                raise RuntimeError("Nose cannot smell when immune response is active.")
+            self._smell_as_human(odor)
+
+    def _check_can_smell(self):
+        if self.is_robot and self.current_air_tank_level >= self.air_tank_capacity_liters:
+            raise RuntimeError("Robot nose cannot smell when air tank is full.")
+
+        if not self.is_robot and self.immune_response:
+            raise RuntimeError("Nose cannot smell when immune response is active.")
+
+    def _smell_as_robot(self, odor):
+        self.smelled_smells.add(odor)
+        self.current_air_tank_level += 1
+
+    def _smell_as_human(self, odor):
+        if odor in self.allergies:
+            self.immune_response = True
+        else:
+            self.smelled_smells.add(odor)
 
     def rest(self):
         """
